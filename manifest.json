@@ -1,0 +1,11 @@
+{
+  "name": "PicView",
+  "short_name": "PicView",
+  "start_url": "picview.html",
+  "display": "standalone",
+  "background_color": "#1c1a17",
+  "theme_color": "#1c1a17",
+  "icons": [
+    { "src": "apple-touch-icon.png", "sizes": "1024x1024", "type": "image/png" }
+  ]
+}
