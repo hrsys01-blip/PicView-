@@ -1,7 +1,7 @@
 {
-  "name": "PicView",
-  "short_name": "PicView",
-  "start_url": "picview.html",
+  "name": "SonoPic",
+  "short_name": "SonoPic",
+  "start_url": "index.html",
   "display": "standalone",
   "background_color": "#1c1a17",
   "theme_color": "#1c1a17",
