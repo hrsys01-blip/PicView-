@@ -96,7 +96,7 @@
   .card video{ width:100%; display:block; background:#000; }
 
   #step-photo .card{
-    min-height: 300px;
+    height: 460px;
     display:flex; align-items:center; justify-content:center;
     cursor:pointer;
     border: 1.5px dashed var(--line);
@@ -104,14 +104,14 @@
   }
   #step-photo .card:active{ background:#f2f0ea; }
   .dropInner{ text-align:center; padding: 30px 24px; }
-  .dropInner svg{ opacity:.55; margin-bottom:12px; }
-  .dropInner .label{ font-size:15px; font-weight:600; color: var(--ink); }
-  .dropInner .sub{ font-size:13px; color: var(--muted); margin-top:5px; }
+  .dropInner svg{ margin-bottom:20px; }
+  .dropInner .label{ font-size:20px; font-weight:700; color: var(--ink); }
+  .dropInner .sub{ font-size:15px; color: var(--muted); margin-top:6px; }
   input[type=file]{ display:none; }
 
   /* ---------- Press / Then / Talk & Point overlay (idle, before recording) ---------- */
   .pressOverlay{
-    position:absolute; inset:0;
+    position:absolute; top:0; left:0; right:0; bottom:0;
     display:flex; flex-direction:column; align-items:center; justify-content:center;
     pointer-events:none;
   }
@@ -119,11 +119,13 @@
   .pressLabel, .thenLabel{
     color:#fff; font-weight:700; font-size:15px;
     text-shadow: 0 1px 6px rgba(0,0,0,0.45);
+    -webkit-text-stroke: 0.1px rgba(0,0,0,0.85);
   }
   .thenLabel{ margin-top:14px; }
   .talkPoint{
     color:#fff; font-weight:700; font-size:30px; margin-top:6px;
     text-shadow: 0 1px 8px rgba(0,0,0,0.5);
+    -webkit-text-stroke: 0.1px rgba(0,0,0,0.85);
     text-align:center;
   }
   .recordCircle{
@@ -203,6 +205,26 @@
 
   section.step{ padding: 0 18px; }
 
+  #step-photo{
+    display:flex; flex-direction:column;
+    min-height: calc(100vh - 54px);
+  }
+  #step-photo .brand{
+    margin-top:auto; margin-bottom:auto; padding:16px 0;
+  }
+  #step-photo .brand img{ width:44px; height:44px; }
+  #step-photo .brand span{ font-size:26px; }
+
+  #step-record{
+    display:flex; flex-direction:column;
+    min-height: calc(100vh - 54px);
+  }
+  #step-record .brand{
+    margin-top:auto; margin-bottom:auto; padding:16px 0;
+  }
+  #step-record .brand img{ width:44px; height:44px; }
+  #step-record .brand span{ font-size:26px; }
+
   [hidden]{ display:none !important; }
 </style>
 </head>
@@ -234,7 +256,14 @@
   <section id="step-photo" class="step">
     <label class="card" id="dropzone">
       <div class="dropInner">
-        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#9a9a9a" stroke-width="1.4"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10.5" r="1.7"/><path d="M21 16l-5.2-5.2a1.5 1.5 0 0 0-2.1 0L5 19"/></svg>
+        <svg width="150" height="150" viewBox="0 0 200 200">
+          <circle cx="100" cy="100" r="88" fill="#fbced2"/>
+          <rect x="81" y="48" width="38" height="18" rx="6" fill="#1e4091"/>
+          <rect x="45" y="64" width="110" height="78" rx="16" fill="#1e4091"/>
+          <circle cx="100" cy="103" r="26" fill="#ffffff" stroke="#1e4091" stroke-width="5.5"/>
+          <circle cx="100" cy="103" r="14" fill="#1e4091"/>
+          <circle cx="128" cy="76" r="7" fill="#d00030"/>
+        </svg>
         <div class="label" data-i18n="photoLabel">Tap to choose a photo</div>
         <div class="sub" data-i18n="photoSub">From your camera roll or camera</div>
       </div>
