@@ -969,13 +969,10 @@
     const file = new File([blob], filename, { type: mimeForBlob });
     if (navigator.canShare && navigator.canShare({ files: [file] })){
       shareBtn.onclick = async () => {
-        try{ await navigator.share({ files: [file], title: 'SonoPic' }); }
-        catch(e){ /* annulé par l'utilisateur */ }
-        const keep = confirm(STRINGS[currentLang].keepOrDiscardAfterSend);
-        if (keep){
-          downloadLink.click();
-        }
-        backToPhotoScreen();
+        try{
+          await navigator.share({ files: [file], title: 'SonoPic' });
+          backToPhotoScreen();
+        }catch(e){ /* annulé par l'utilisateur : on reste sur l'écran résultat */ }
       };
     } else {
       shareBtn.onclick = () => {
