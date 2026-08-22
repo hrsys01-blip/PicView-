@@ -212,7 +212,7 @@
   .msg{ font-size:12.5px; color: var(--muted); text-align:center; margin-top:12px; line-height:1.5; padding:0 20px; }
   .msg.error{ color: var(--rust); }
 
-  section.step{ padding: 0 18px; }
+  section.step{ padding: 0 18px calc(110px + env(safe-area-inset-bottom)); }
 
   #step-photo{
     display:flex; flex-direction:column;
@@ -678,24 +678,21 @@
     ctx.globalAlpha = alpha;
     ctx.translate(x, y);
     const s = canvas.width * 0.044;
+    const L = s * 2.2;
     ctx.fillStyle = '#ffffff';
     ctx.strokeStyle = 'rgba(0,0,0,0.9)';
     ctx.lineWidth = s * 0.10;
     ctx.beginPath();
-    ctx.moveTo(0, -s*1.9);
-    ctx.lineTo(s*0.85, -s*0.55);
-    ctx.lineTo(s*0.3, -s*0.55);
-    ctx.lineTo(s*0.3, s*0.15);
-    ctx.lineTo(-s*0.3, s*0.15);
-    ctx.lineTo(-s*0.3, -s*0.55);
-    ctx.lineTo(-s*0.85, -s*0.55);
+    ctx.moveTo(0, 0);
+    ctx.lineTo(0, 1.0*L);
+    ctx.lineTo(-0.231*L, 0.806*L);
+    ctx.lineTo(-0.372*L, 1.183*L);
+    ctx.lineTo(-0.520*L, 1.126*L);
+    ctx.lineTo(-0.383*L, 0.750*L);
+    ctx.lineTo(-0.716*L, 0.733*L);
     ctx.closePath();
     ctx.fill();
     ctx.stroke();
-    ctx.beginPath();
-    ctx.arc(0, s*0.55, s*0.16, 0, Math.PI*2);
-    ctx.fillStyle = '#d00030';
-    ctx.fill();
     ctx.restore();
   }
 
