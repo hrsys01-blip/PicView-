@@ -714,12 +714,15 @@
 
   function drawWatermark(){
     if (!watermarkLogo.complete || watermarkLogo.naturalWidth === 0) return;
-    const size = Math.max(28, canvas.width * 0.11);
-    const pad = canvas.width * 0.025;
-    const x = pad;
-    const y = canvas.height - size - pad;
+    const elapsed = Date.now() - startTime;
+    if (elapsed > 150) return; // logo visible seulement ~150ms au tout début (pour la vignette)
+
+    const size = canvas.width * 0.5;
+    const x = (canvas.width - size) / 2;
+    const y = (canvas.height - size) / 2;
     ctx.save();
-    ctx.globalAlpha = 0.55;
+    ctx.globalAlpha = 0.35;
+    ctx.filter = 'grayscale(100%)';
     ctx.drawImage(watermarkLogo, x, y, size, size);
     ctx.restore();
   }
