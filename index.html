@@ -88,15 +88,15 @@
   .card{
     position:relative;
     margin: 0 0 0;
+    height: 460px;
     border-radius: 26px;
     overflow:hidden;
     background:#e9e4d6;
   }
-  .card canvas{ width:100%; display:block; }
-  .card video{ width:100%; display:block; background:#000; }
+  .card canvas{ width:100%; height:100%; object-fit:cover; display:block; }
+  .card video{ width:100%; height:100%; object-fit:cover; display:block; background:#000; }
 
   #step-photo .card{
-    height: 460px;
     display:flex; align-items:center; justify-content:center;
     cursor:pointer;
     border: 1.5px dashed var(--line);
@@ -200,10 +200,8 @@
 
   /* ---------- Brand footer ---------- */
   .brand{
-    position:fixed; left:50%; bottom: max(14px, env(safe-area-inset-bottom));
-    transform: translateX(-50%);
     display:flex; align-items:center; justify-content:center; gap:11px;
-    margin:0; z-index:15;
+    margin-top:26px;
   }
   .brand img{ width:72px; height:72px; }
   .brand span{ font-family:'Inter',sans-serif; font-weight:700; font-size:40px; color:#3c3c3f; }
@@ -212,7 +210,7 @@
   .msg{ font-size:12.5px; color: var(--muted); text-align:center; margin-top:12px; line-height:1.5; padding:0 20px; }
   .msg.error{ color: var(--rust); }
 
-  section.step{ padding: 0 18px calc(110px + env(safe-area-inset-bottom)); }
+  section.step{ padding: 0 18px 24px; }
 
   #step-photo{
     display:flex; flex-direction:column;
@@ -659,11 +657,14 @@
   // ============ Pointer / flèches ============
   function canvasPointFromEvent(e){
     const rect = canvas.getBoundingClientRect();
-    const scaleX = canvas.width / rect.width;
-    const scaleY = canvas.height / rect.height;
+    const scale = Math.max(rect.width / canvas.width, rect.height / canvas.height);
+    const dispW = canvas.width * scale;
+    const dispH = canvas.height * scale;
+    const offsetX = (dispW - rect.width) / 2;
+    const offsetY = (dispH - rect.height) / 2;
     return {
-      x: (e.clientX - rect.left) * scaleX,
-      y: (e.clientY - rect.top) * scaleY
+      x: ((e.clientX - rect.left) + offsetX) / scale,
+      y: ((e.clientY - rect.top) + offsetY) / scale
     };
   }
 
@@ -678,7 +679,7 @@
     ctx.globalAlpha = alpha;
     ctx.translate(x, y);
     const s = canvas.width * 0.044;
-    const L = s * 2.2;
+    const L = s * 1.4;
     ctx.fillStyle = '#ffffff';
     ctx.strokeStyle = 'rgba(0,0,0,0.9)';
     ctx.lineWidth = s * 0.10;
