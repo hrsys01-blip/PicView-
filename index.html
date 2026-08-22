@@ -66,7 +66,7 @@
     padding:4px 2px;
   }
   .langBtn svg{ width:17px; height:17px; }
-  .langBtn .car{ width:14px; height:14px; opacity:.75; }
+  .langBtn .car{ width:20px; height:20px; opacity:.75; }
 
   .langMenu{
     position:absolute; top:32px; left:50%; transform:translateX(-50%);
@@ -200,11 +200,13 @@
 
   /* ---------- Brand footer ---------- */
   .brand{
-    display:flex; align-items:center; justify-content:center; gap:9px;
-    margin-top:26px;
+    position:fixed; left:50%; bottom: max(14px, env(safe-area-inset-bottom));
+    transform: translateX(-50%);
+    display:flex; align-items:center; justify-content:center; gap:11px;
+    margin:0; z-index:15;
   }
-  .brand img{ width:56px; height:56px; }
-  .brand span{ font-family:'Inter',sans-serif; font-weight:700; font-size:32px; color:#3c3c3f; }
+  .brand img{ width:72px; height:72px; }
+  .brand span{ font-family:'Inter',sans-serif; font-weight:700; font-size:40px; color:#3c3c3f; }
 
   /* ---------- Messages ---------- */
   .msg{ font-size:12.5px; color: var(--muted); text-align:center; margin-top:12px; line-height:1.5; padding:0 20px; }
@@ -216,21 +218,11 @@
     display:flex; flex-direction:column;
     min-height: calc(100vh - 54px);
   }
-  #step-photo .brand{
-    margin-top:auto; margin-bottom:auto; padding:16px 0;
-  }
-  #step-photo .brand img{ width:56px; height:56px; }
-  #step-photo .brand span{ font-size:32px; }
 
   #step-record{
     display:flex; flex-direction:column;
     min-height: calc(100vh - 54px);
   }
-  #step-record .brand{
-    margin-top:auto; margin-bottom:auto; padding:16px 0;
-  }
-  #step-record .brand img{ width:56px; height:56px; }
-  #step-record .brand span{ font-size:32px; }
 
   [hidden]{ display:none !important; }  /* ---------- Action sheet (4-choice menu) ---------- */
   .sheetOverlay{
