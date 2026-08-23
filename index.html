@@ -229,19 +229,39 @@
 
   /* ---------- Saved toast ---------- */
   .savedToast{
-    position:fixed; top:80px; left:50%; transform:translateX(-50%);
-    background:#1a1a1a; color:#fff; font-size:15px; font-weight:600;
-    padding:12px 22px; border-radius:24px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+    position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
+    background:#1a1a1a; color:#fff; font-size:22px; font-weight:700;
+    padding:22px 32px; border-radius:20px; text-align:center;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.3);
     z-index:9999; opacity:0;
-    animation: savedToastFade 3s ease forwards;
+    animation: savedToastFade 4.5s ease forwards;
   }
   @keyframes savedToastFade{
-    0%{ opacity:0; transform:translateX(-50%) translateY(-8px); }
-    10%{ opacity:1; transform:translateX(-50%) translateY(0); }
-    85%{ opacity:1; }
+    0%{ opacity:0; transform:translate(-50%,-50%) scale(0.9); }
+    8%{ opacity:1; transform:translate(-50%,-50%) scale(1); }
+    90%{ opacity:1; }
     100%{ opacity:0; }
   }
+
+  /* ---------- Also-save confirm overlay ---------- */
+  .confirmOverlay{
+    position:fixed; top:0; left:0; right:0; bottom:0;
+    background:rgba(0,0,0,0.4); z-index:10000;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .confirmBox{
+    width:280px; background:#fff; border-radius:16px;
+    padding:24px 20px 0; text-align:center;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.3);
+  }
+  .confirmText{ font-size:16px; font-weight:600; color:#1a1a1a; line-height:1.4; margin-bottom:20px; }
+  .confirmBtns{ display:flex; border-top:1px solid var(--line); margin:0 -20px; }
+  .confirmBtns button{
+    flex:1; border:none; background:none; padding:14px 0;
+    font-size:16px; font-family:inherit; cursor:pointer;
+  }
+  .confirmBtnNo{ color:#666; border-right:1px solid var(--line); }
+  .confirmBtnYes{ color:var(--green); font-weight:700; }
 
   /* ---------- Action sheet (4-choice menu) ---------- */
   .sheetOverlay{
@@ -383,6 +403,16 @@
 
 <div class="savedToast" id="savedToast" hidden></div>
 
+<div class="confirmOverlay" id="alsoSaveOverlay" hidden>
+  <div class="confirmBox">
+    <p class="confirmText" id="alsoSaveText"></p>
+    <div class="confirmBtns">
+      <button class="confirmBtnNo" id="alsoSaveNo"></button>
+      <button class="confirmBtnYes" id="alsoSaveYes"></button>
+    </div>
+  </div>
+</div>
+
 <div class="sheetOverlay" id="sheetOverlay" hidden>
   <div class="actionSheet">
     <button class="sheetBtn" id="sheetSave" data-i18n="save">Save</button>
@@ -413,7 +443,8 @@
       ko: ' KB.', mo: ' MB.',
       newPhotoConfirm: "The video isn't saved unless it's been sent or saved.\n\nOK = discard it and choose a new photo\nCancel = stay here to save it first",
       keepOrDiscardAfterSend: "Keep this video?\n\nOK = keep it (save)\nCancel = discard it now",
-      savedToast: 'Done ✓'
+      alsoSaveConfirm: "Do you also want to save this SonoPic to your device?",
+      savedToast: 'SonoPic saved ✓'
     },
     fr: {
       photoLabel: 'Toucher pour choisir ou prendre une photo',
@@ -431,7 +462,8 @@
       ko: ' Ko.', mo: ' Mo.',
       newPhotoConfirm: "La vidéo n'est pas sauvegardée si elle n'est pas encore envoyée ou enregistrée.\n\nOK = l'abandonner et choisir une nouvelle photo\nAnnuler = rester ici pour la sauvegarder d'abord",
       keepOrDiscardAfterSend: "Garder cette vidéo ?\n\nOK = la garder (l'enregistrer)\nAnnuler = l'effacer maintenant",
-      savedToast: 'Terminé ✓'
+      alsoSaveConfirm: "Enregistrer ce SonoPic dans l'appareil ?",
+      savedToast: 'SonoPic enregistré ✓'
     }
   };
 
@@ -496,6 +528,10 @@
   const resultActions = document.getElementById('resultActions');
   const shareBtn = document.getElementById('shareBtn');
   const savedToast = document.getElementById('savedToast');
+  const alsoSaveOverlay = document.getElementById('alsoSaveOverlay');
+  const alsoSaveText = document.getElementById('alsoSaveText');
+  const alsoSaveYes = document.getElementById('alsoSaveYes');
+  const alsoSaveNo = document.getElementById('alsoSaveNo');
   const downloadLink = document.getElementById('downloadLink');
   const redoBtn = document.getElementById('redoBtn');
   const newPhotoBtn = document.getElementById('newPhotoBtn');
@@ -608,16 +644,39 @@
     photoInput.value = '';
   }
 
-  function showSavedThenBack(){
-    savedToast.textContent = STRINGS[currentLang].savedToast;
+  function showToastThenBack(text, durationMs){
+    savedToast.textContent = text;
     savedToast.hidden = false;
     savedToast.style.animation = 'none';
     void savedToast.offsetWidth;
-    savedToast.style.animation = '';
+    savedToast.style.animation = 'savedToastFade ' + durationMs + 'ms ease forwards';
     setTimeout(() => {
       savedToast.hidden = true;
       backToPhotoScreen();
-    }, 3000);
+    }, durationMs);
+  }
+
+  function askAlsoSave(){
+    return new Promise((resolve) => {
+      alsoSaveText.textContent = STRINGS[currentLang].alsoSaveConfirm;
+      alsoSaveYes.textContent = STRINGS[currentLang].save;
+      alsoSaveNo.textContent = STRINGS[currentLang].cancel;
+      alsoSaveOverlay.hidden = false;
+      function onYes(){ cleanup(true); }
+      function onNo(){ cleanup(false); }
+      function cleanup(result){
+        alsoSaveOverlay.hidden = true;
+        alsoSaveYes.removeEventListener('click', onYes);
+        alsoSaveNo.removeEventListener('click', onNo);
+        resolve(result);
+      }
+      alsoSaveYes.addEventListener('click', onYes);
+      alsoSaveNo.addEventListener('click', onNo);
+    });
+  }
+
+  function showSavedThenBack(){
+    showToastThenBack(STRINGS[currentLang].savedToast, 4500);
   }
 
   newPhotoBtn.addEventListener('click', () => {
@@ -761,6 +820,7 @@
   }
 
   function drawWatermark(){
+    // Petit texte "SonoPic" en bas à droite, présent sur toute la vidéo
     const fontSize = Math.max(12, canvas.width * 0.038);
     const pad = canvas.width * 0.028;
     ctx.save();
@@ -775,6 +835,21 @@
     ctx.fillStyle = '#ffffff';
     ctx.fillText('SonoPic', canvas.width - pad, canvas.height - pad);
     ctx.restore();
+
+    // Grand logo grisé, visible seulement la 1ère seconde (pour la vignette mosaïque)
+    const elapsed = Date.now() - startTime;
+    if (elapsed <= 1000){
+      const grayLogo = getGrayscaleLogo();
+      if (grayLogo){
+        const size = canvas.width * 0.5;
+        const x = (canvas.width - size) / 2;
+        const y = (canvas.height - size) / 2;
+        ctx.save();
+        ctx.globalAlpha = 0.3;
+        ctx.drawImage(grayLogo, x, y, size, size);
+        ctx.restore();
+      }
+    }
   }
 
   function renderFrame(){
@@ -1001,7 +1076,14 @@
       shareBtn.onclick = async () => {
         try{
           await navigator.share({ files: [file], title: 'SonoPic' });
-          showSavedThenBack();
+          const alsoSave = await askAlsoSave();
+          if (alsoSave){
+            try{ await navigator.share({ files: [file], title: 'SonoPic' }); }
+            catch(e){ /* annulé par l'utilisateur */ }
+            showSavedThenBack();
+          } else {
+            backToPhotoScreen();
+          }
         }catch(e){ /* annulé par l'utilisateur : on reste sur l'écran résultat */ }
       };
     } else {
