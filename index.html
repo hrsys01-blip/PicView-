@@ -225,7 +225,25 @@
     min-height: calc(100vh - 54px);
   }
 
-  [hidden]{ display:none !important; }  /* ---------- Action sheet (4-choice menu) ---------- */
+  [hidden]{ display:none !important; }
+
+  /* ---------- Saved toast ---------- */
+  .savedToast{
+    position:fixed; top:80px; left:50%; transform:translateX(-50%);
+    background:#1a1a1a; color:#fff; font-size:15px; font-weight:600;
+    padding:12px 22px; border-radius:24px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+    z-index:9999; opacity:0;
+    animation: savedToastFade 3s ease forwards;
+  }
+  @keyframes savedToastFade{
+    0%{ opacity:0; transform:translateX(-50%) translateY(-8px); }
+    10%{ opacity:1; transform:translateX(-50%) translateY(0); }
+    85%{ opacity:1; }
+    100%{ opacity:0; }
+  }
+
+  /* ---------- Action sheet (4-choice menu) ---------- */
   .sheetOverlay{
     position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.4);
     z-index:9998; display:flex; flex-direction:column; justify-content:flex-end;
@@ -363,6 +381,8 @@
 
 </div>
 
+<div class="savedToast" id="savedToast" hidden></div>
+
 <div class="sheetOverlay" id="sheetOverlay" hidden>
   <div class="actionSheet">
     <button class="sheetBtn" id="sheetSave" data-i18n="save">Save</button>
@@ -392,7 +412,8 @@
       webmNote: ' — .webm format, playable on most devices and messaging apps.',
       ko: ' KB.', mo: ' MB.',
       newPhotoConfirm: "The video isn't saved unless it's been sent or saved.\n\nOK = discard it and choose a new photo\nCancel = stay here to save it first",
-      keepOrDiscardAfterSend: "Keep this video?\n\nOK = keep it (save)\nCancel = discard it now"
+      keepOrDiscardAfterSend: "Keep this video?\n\nOK = keep it (save)\nCancel = discard it now",
+      savedToast: 'Done ✓'
     },
     fr: {
       photoLabel: 'Toucher pour choisir ou prendre une photo',
@@ -409,7 +430,8 @@
       webmNote: ' — Format .webm, lisible sur la plupart des appareils et messageries.',
       ko: ' Ko.', mo: ' Mo.',
       newPhotoConfirm: "La vidéo n'est pas sauvegardée si elle n'est pas encore envoyée ou enregistrée.\n\nOK = l'abandonner et choisir une nouvelle photo\nAnnuler = rester ici pour la sauvegarder d'abord",
-      keepOrDiscardAfterSend: "Garder cette vidéo ?\n\nOK = la garder (l'enregistrer)\nAnnuler = l'effacer maintenant"
+      keepOrDiscardAfterSend: "Garder cette vidéo ?\n\nOK = la garder (l'enregistrer)\nAnnuler = l'effacer maintenant",
+      savedToast: 'Terminé ✓'
     }
   };
 
@@ -473,6 +495,7 @@
   const compressStatus = document.getElementById('compressStatus');
   const resultActions = document.getElementById('resultActions');
   const shareBtn = document.getElementById('shareBtn');
+  const savedToast = document.getElementById('savedToast');
   const downloadLink = document.getElementById('downloadLink');
   const redoBtn = document.getElementById('redoBtn');
   const newPhotoBtn = document.getElementById('newPhotoBtn');
@@ -583,6 +606,18 @@
     stopEverything();
     showStep('photo');
     photoInput.value = '';
+  }
+
+  function showSavedThenBack(){
+    savedToast.textContent = STRINGS[currentLang].savedToast;
+    savedToast.hidden = false;
+    savedToast.style.animation = 'none';
+    void savedToast.offsetWidth;
+    savedToast.style.animation = '';
+    setTimeout(() => {
+      savedToast.hidden = true;
+      backToPhotoScreen();
+    }, 3000);
   }
 
   newPhotoBtn.addEventListener('click', () => {
@@ -726,17 +761,19 @@
   }
 
   function drawWatermark(){
-    const grayLogo = getGrayscaleLogo();
-    if (!grayLogo) return;
-    const elapsed = Date.now() - startTime;
-    if (elapsed > 150) return; // logo visible seulement ~150ms au tout début (pour la vignette)
-
-    const size = canvas.width * 0.5;
-    const x = (canvas.width - size) / 2;
-    const y = (canvas.height - size) / 2;
+    const fontSize = Math.max(12, canvas.width * 0.038);
+    const pad = canvas.width * 0.028;
     ctx.save();
-    ctx.globalAlpha = 0.35;
-    ctx.drawImage(grayLogo, x, y, size, size);
+    ctx.globalAlpha = 0.6;
+    ctx.font = '700 ' + fontSize + 'px Inter, sans-serif';
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'bottom';
+    ctx.lineJoin = 'round';
+    ctx.strokeStyle = 'rgba(0,0,0,0.55)';
+    ctx.lineWidth = fontSize * 0.12;
+    ctx.strokeText('SonoPic', canvas.width - pad, canvas.height - pad);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText('SonoPic', canvas.width - pad, canvas.height - pad);
     ctx.restore();
   }
 
@@ -964,13 +1001,13 @@
       shareBtn.onclick = async () => {
         try{
           await navigator.share({ files: [file], title: 'SonoPic' });
-          backToPhotoScreen();
+          showSavedThenBack();
         }catch(e){ /* annulé par l'utilisateur : on reste sur l'écran résultat */ }
       };
     } else {
       shareBtn.onclick = () => {
         downloadLink.click();
-        backToPhotoScreen();
+        showSavedThenBack();
       };
     }
   }
